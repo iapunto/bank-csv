@@ -17,8 +17,8 @@ conectarlos y iniciar el bucle principal de la interfaz gráfica.
 import sys
 import logging
 import traceback
-from src.view.main_window import MainWindow
-from src.controller.app_controller import AppController
+from src.views.main_window import MainWindow
+from src.controllers.app_controller import AppController
 
 # Configurar logging básico
 logging.basicConfig(

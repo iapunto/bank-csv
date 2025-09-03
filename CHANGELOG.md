@@ -5,6 +5,25 @@ Todos los cambios notables en este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto adhiere al [Versionado Semántico](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] - 2025-09-03
+
+### Agregado
+
+- Empaquetado de la aplicación como un archivo `.exe` único para Windows usando PyInstaller.
+- Función de ayuda `resource_path` para resolver rutas de archivos en el ejecutable empaquetado.
+
+### Cambiado
+
+- **Formato de Salida CSV:**
+  - Los montos numéricos ahora usan `.` como separador decimal y no tienen separadores de miles.
+  - Las cabeceras del CSV se han cambiado a `Dia`, `Etiqueta`, `Debit`, `Credit`.
+- **Manejo de Números:**
+  - Mejorada la función `clean_number_string` para interpretar correctamente números con `.` como separador de miles y `,` como separador decimal.
+
+### Corregido
+
+- Solucionado un error crítico donde la aplicación empaquetada no podía encontrar el archivo de configuración `settings.ini`.
+
 ## [1.0.0] - 2025-09-03
 
 ### Agregado

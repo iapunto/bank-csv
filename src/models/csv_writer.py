@@ -18,7 +18,7 @@ import logging
 from typing import List
 
 # Importamos nuestro modelo de datos para tener una referencia de tipo estricta.
-from src.model.data_models import Transaccion
+from .data_models import Transaccion
 
 # Configurar logging
 logger = logging.getLogger(__name__)
@@ -48,7 +48,7 @@ def escribir_transacciones_a_csv(transacciones: List[Transaccion], output_path: 
         return False
 
     # Definimos las cabeceras que tendrá nuestro archivo CSV.
-    headers = ['dia', 'descripcion', 'debito', 'credito']
+    headers = ['Dia', 'Etiqueta', 'Debit', 'Credit']
 
     logger.info(
         f"Escribiendo {len(transacciones)} transacciones en el archivo: {output_path}")
@@ -56,7 +56,6 @@ def escribir_transacciones_a_csv(transacciones: List[Transaccion], output_path: 
     try:
         with open(output_path, mode='w', newline='', encoding='utf-8') as csv_file:
             # Usamos DictWriter para mapear directamente los atributos del objeto a las columnas.
-            # Es más robusto que escribir las filas manualmente.
             writer = csv.DictWriter(csv_file, fieldnames=headers)
 
             # Escribir la fila de cabeceras
@@ -65,10 +64,18 @@ def escribir_transacciones_a_csv(transacciones: List[Transaccion], output_path: 
             # Escribir cada transacción en una nueva fila
             for i, transaccion in enumerate(transacciones):
                 try:
-                    # Pydantic nos da un método.model_dump() que convierte el objeto a un diccionario,
-                    # lo cual es perfecto para DictWriter.
+                    # Pydantic nos da un método .model_dump() que convierte el objeto a un diccionario.
                     row_data = transaccion.model_dump()
-                    writer.writerow(row_data)
+
+                    # Formatear y mapear los datos a las nuevas cabeceras
+                    csv_row = {
+                        'Dia': row_data['fecha'],
+                        'Etiqueta': row_data['descripcion'],
+                        'Debit': (f"{row_data['debito']:.2f}" if row_data.get('debito') is not None else None),
+                        'Credit': (f"{row_data['credito']:.2f}" if row_data.get('credito') is not None else None)
+                    }
+
+                    writer.writerow(csv_row)
                 except Exception as e:
                     logger.error(
                         f"Error al escribir la transacción {i+1}: {e}")

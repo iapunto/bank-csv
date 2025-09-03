@@ -19,9 +19,10 @@ import logging
 from tkinter import filedialog
 
 # Importamos las clases y funciones necesarias de nuestros otros módulos
-from src.model.extractor_ia import ExtractorIA
-from src.model.csv_writer import escribir_transacciones_a_csv
-from src.view.main_window import MainWindow
+from src.models.extractor_ia import ExtractorIA
+from src.models.csv_writer import escribir_transacciones_a_csv
+from src.views.main_window import MainWindow
+from src.utils.helpers import resource_path  # <-- IMPORTAR LA NUEVA FUNCIÓN
 
 # Configurar logging
 logger = logging.getLogger(__name__)
@@ -43,10 +44,13 @@ class AppController:
         self.selected_pdf_path = None
 
         try:
-            # Inicializamos el Modelo (el extractor de IA)
-            self.extractor = ExtractorIA()
+            # Obtenemos la ruta correcta al archivo de configuración
+            config_path = resource_path("config/settings.ini")
+            
+            # Inicializamos el Modelo (el extractor de IA) con la ruta correcta
+            self.extractor = ExtractorIA(config_path=config_path)
             logger.info("Extractor de IA inicializado correctamente")
-        except ConnectionError as e:
+        except (ConnectionError, FileNotFoundError) as e:
             # Si hay un error al iniciar (ej. no hay API key), lo mostramos en la vista
             logger.error(f"Error al inicializar el extractor: {e}")
             self.view.actualizar_barra_estado(str(e), es_error=True)

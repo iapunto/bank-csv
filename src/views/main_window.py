@@ -148,8 +148,7 @@ class MainWindow(ctk.CTk):
                 logger.warning(f"Estado de error: {mensaje}")
             else:
                 # Usar el color de texto por defecto del tema
-                self.status_bar.configure(
-                    text_color=ctk.ThemeManager.theme["text_color"])
+                self.status_bar.configure(text_color=None)
                 logger.info(f"Estado actualizado: {mensaje}")
         except Exception as e:
             logger.error(f"Error al actualizar barra de estado: {e}")
