@@ -41,22 +41,42 @@ class MainWindow(ctk.CTk):
 
         # --- Configuración de la Ventana Principal ---
         self.title("Extractor de Movimientos Bancarios")
-        self.geometry("500x250")
+        self.geometry("500x300")  # Aumentamos un poco la altura
         self.resizable(False, False)
 
-        # Configurar el tema (Light, Dark, System)
+        # Configurar el tema
         ctk.set_appearance_mode("System")
         ctk.set_default_color_theme("blue")
 
-        # --- Creación de Widgets (Componentes de la UI) ---
+        # --- Creación del sistema de pestañas ---
+        self.tab_view = ctk.CTkTabview(self)
+        self.tab_view.pack(pady=10, padx=10, fill="both", expand=True)
 
+        self.tab_view.add("Extractor")
+        self.tab_view.add("Configuración")
+
+        # --- Pestaña de Extracción ---
+        self._crear_widgets_extractor(self.tab_view.tab("Extractor"))
+
+        # --- Pestaña de Configuración ---
+        self._crear_widgets_configuracion(self.tab_view.tab("Configuración"))
+
+        # --- Barra de estado en la parte inferior ---
+        self.status_bar = ctk.CTkLabel(self, text="Listo", anchor="w")
+        self.status_bar.pack(side="bottom", fill="x", padx=10, pady=5)
+        self.default_status_color = self.status_bar.cget("text_color")
+
+        logger.info("Ventana principal inicializada correctamente")
+
+    def _crear_widgets_extractor(self, tab):
+        """Crea los widgets para la pestaña de extracción."""
         # Frame principal para organizar los widgets
-        main_frame = ctk.CTkFrame(self)
-        main_frame.pack(pady=20, padx=20, fill="both", expand=True)
+        extractor_frame = ctk.CTkFrame(tab)
+        extractor_frame.pack(pady=20, padx=20, fill="both", expand=True)
 
         # 1. Botón para seleccionar el archivo PDF
         self.select_pdf_button = ctk.CTkButton(
-            main_frame,
+            extractor_frame,
             text="Seleccionar Archivo PDF",
             command=self._on_select_pdf_click
         )
@@ -64,100 +84,77 @@ class MainWindow(ctk.CTk):
 
         # 2. Etiqueta para mostrar el nombre del archivo seleccionado
         self.file_path_label = ctk.CTkLabel(
-            main_frame,
+            extractor_frame,
             text="Ningún archivo seleccionado",
-            wraplength=450  # Para que el texto largo no se salga de la ventana
+            wraplength=450
         )
         self.file_path_label.pack(pady=5, padx=10)
 
         # 3. Botón para iniciar el proceso de generación del CSV
         self.generate_csv_button = ctk.CTkButton(
-            main_frame,
+            extractor_frame,
             text="Generar CSV",
             command=self._on_generate_csv_click,
-            state="disabled"  # Deshabilitado hasta que se seleccione un archivo
+            state="disabled"
         )
         self.generate_csv_button.pack(pady=10, padx=10)
 
-        # 4. Barra de estado en la parte inferior
-        self.status_bar = ctk.CTkLabel(
-            self,
-            text="Listo",
-            anchor="w"  # Alinear texto a la izquierda (west)
-        )
-        self.status_bar.pack(side="bottom", fill="x", padx=10, pady=5)
+    def _crear_widgets_configuracion(self, tab):
+        """Crea los widgets para la pestaña de configuración."""
+        config_frame = ctk.CTkFrame(tab)
+        config_frame.pack(pady=20, padx=20, fill="both", expand=True)
 
-        logger.info("Ventana principal inicializada correctamente")
+        # 1. Etiqueta para el campo de la API Key
+        api_key_label = ctk.CTkLabel(config_frame, text="Clave API de Google Gemini:")
+        api_key_label.pack(pady=(0, 5), padx=10, anchor="w")
+
+        # 2. Campo de texto para la API Key
+        self.api_key_entry = ctk.CTkEntry(config_frame, width=400, show="*")
+        self.api_key_entry.pack(pady=5, padx=10, fill="x")
+        if self.controller:
+            current_key = self.controller.get_api_key()
+            if current_key not in ["No encontrada", "Error de lectura"]:
+                self.api_key_entry.insert(0, current_key)
+
+        # 3. Botón para guardar la API Key
+        self.save_api_key_button = ctk.CTkButton(
+            config_frame,
+            text="Guardar Clave",
+            command=self._on_save_api_key_click
+        )
+        self.save_api_key_button.pack(pady=20, padx=10)
+
+    def _on_save_api_key_click(self):
+        """Maneja el clic en el botón de guardar API Key."""
+        if self.controller:
+            new_key = self.api_key_entry.get()
+            self.controller.save_api_key(new_key)
 
     def _on_select_pdf_click(self):
         """Maneja el clic en el botón de seleccionar PDF."""
-        try:
-            if self.controller:
-                self.controller.seleccionar_archivo_pdf()
-            else:
-                logger.warning(
-                    "Controlador no disponible para seleccionar archivo PDF")
-                self.actualizar_barra_estado(
-                    "Error: Controlador no disponible", es_error=True)
-        except Exception as e:
-            logger.error(f"Error al seleccionar archivo PDF: {e}")
-            self.actualizar_barra_estado(f"Error: {str(e)}", es_error=True)
+        if self.controller:
+            self.controller.seleccionar_archivo_pdf()
 
     def _on_generate_csv_click(self):
         """Maneja el clic en el botón de generar CSV."""
-        try:
-            if self.controller:
-                self.controller.generar_csv()
-            else:
-                logger.warning("Controlador no disponible para generar CSV")
-                self.actualizar_barra_estado(
-                    "Error: Controlador no disponible", es_error=True)
-        except Exception as e:
-            logger.error(f"Error al generar CSV: {e}")
-            self.actualizar_barra_estado(f"Error: {str(e)}", es_error=True)
+        if self.controller:
+            self.controller.generar_csv()
 
     def actualizar_ruta_archivo(self, ruta: str):
-        """
-        Actualiza la etiqueta que muestra la ruta del archivo y habilita/deshabilita
-        el botón de generar CSV.
-        """
-        try:
-            if ruta:
-                # Mostramos solo el nombre del archivo, no la ruta completa, para que sea más limpio
-                nombre_archivo = os.path.basename(ruta)
-                self.file_path_label.configure(
-                    text=f"Archivo: {nombre_archivo}")
-                self.generate_csv_button.configure(state="normal")
-                logger.info(f"Ruta de archivo actualizada: {nombre_archivo}")
-            else:
-                self.file_path_label.configure(
-                    text="Ningún archivo seleccionado")
-                self.generate_csv_button.configure(state="disabled")
-                logger.info("Ruta de archivo limpiada")
-        except Exception as e:
-            logger.error(f"Error al actualizar ruta de archivo: {e}")
+        """Actualiza la etiqueta de la ruta del archivo."""
+        if ruta:
+            nombre_archivo = os.path.basename(ruta)
+            self.file_path_label.configure(text=f"Archivo: {nombre_archivo}")
+            self.generate_csv_button.configure(state="normal")
+        else:
+            self.file_path_label.configure(text="Ningún archivo seleccionado")
+            self.generate_csv_button.configure(state="disabled")
 
     def actualizar_barra_estado(self, mensaje: str, es_error: bool = False):
-        """
-        Actualiza el texto y el color de la barra de estado.
-        """
-        try:
-            self.status_bar.configure(text=mensaje)
-            if es_error:
-                self.status_bar.configure(text_color="red")
-                logger.warning(f"Estado de error: {mensaje}")
-            else:
-                # Usar el color de texto por defecto del tema
-                self.status_bar.configure(text_color=None)
-                logger.info(f"Estado actualizado: {mensaje}")
-        except Exception as e:
-            logger.error(f"Error al actualizar barra de estado: {e}")
+        """Actualiza el texto y color de la barra de estado."""
+        self.status_bar.configure(text=mensaje)
+        self.status_bar.configure(text_color="red" if es_error else self.default_status_color)
 
     def run(self):
-        """Inicia el bucle principal de la aplicación para mostrar la ventana."""
-        try:
-            logger.info("Iniciando bucle principal de la aplicación")
-            self.mainloop()
-        except Exception as e:
-            logger.error(f"Error en el bucle principal: {e}")
-            raise
+        """Inicia el bucle principal de la aplicación."""
+        self.mainloop()

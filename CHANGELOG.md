@@ -9,20 +9,18 @@ y este proyecto adhiere al [Versionado Semántico](https://semver.org/spec/v2.0.
 
 ### Agregado
 
-- Empaquetado de la aplicación como un archivo `.exe` único para Windows usando PyInstaller.
-- Función de ayuda `resource_path` para resolver rutas de archivos en el ejecutable empaquetado.
+- Pestaña de "Configuración" en la GUI para gestionar la clave API de Gemini.
+- Creación de `config/settings.ini.template` como plantilla de configuración segura.
+- Archivo de manual de usuario `WIKI.md` movido a la carpeta `docs/`.
 
 ### Cambiado
 
-- **Formato de Salida CSV:**
-  - Los montos numéricos ahora usan `.` como separador decimal y no tienen separadores de miles.
-  - Las cabeceras del CSV se han cambiado a `Dia`, `Etiqueta`, `Debit`, `Credit`.
-- **Manejo de Números:**
-  - Mejorada la función `clean_number_string` para interpretar correctamente números con `.` como separador de miles y `,` como separador decimal.
+- La aplicación ya no almacena la clave API en el código fuente. La clave se guarda y se lee desde la GUI en el archivo `config/settings.ini`.
 
 ### Corregido
 
-- Solucionado un error crítico donde la aplicación empaquetada no podía encontrar el archivo de configuración `settings.ini`.
+- **Falla de Seguridad Crítica:** Se ha eliminado la clave API del repositorio. El archivo `config/settings.ini` ahora es ignorado por Git para prevenir futuras filtraciones.
+- Solucionado un error en la GUI que impedía guardar la clave API correctamente debido a un problema de renderizado de color en la barra de estado.
 
 ## [1.0.0] - 2025-09-03
 
