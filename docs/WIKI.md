@@ -1,148 +1,113 @@
 # Wiki y Manual de Usuario - Extractor de Movimientos Bancarios con IA
 
-Bienvenido a la wiki del Extractor de Movimientos Bancarios. Esta guía te ayudará a instalar, configurar y utilizar la aplicación de manera efectiva.
+Bienvenido a la guía del Extractor de Movimientos Bancarios. Esta wiki te ayudará a instalar, configurar y utilizar la aplicación de manera efectiva.
 
 ## 📜 Índice
 
-1.  [**Introducción**](#1-introducción)
-2.  [**Instalación y Configuración Inicial**](#2-instalación-y-configuración-inicial)
+1.  [**Guía para Usuarios Finales**](#1-guía-para-usuarios-finales)
+    -   [Descarga e Instalación](#descarga-e-instalación)
+    -   [Configuración Inicial (API Key)](#configuración-inicial-api-key)
+    -   [Manual de Uso](#manual-de-uso)
+2.  [**Guía para Desarrolladores**](#2-guía-para-desarrolladores)
     -   [Requisitos Previos](#requisitos-previos)
-    -   [Pasos de Instalación](#pasos-de-instalación)
-    -   [Configuración de la API Key](#configuración-de-la-api-key)
-3.  [**Manual de Uso de la Aplicación**](#3-manual-de-uso-de-la-aplicación)
-    -   [Iniciar la Aplicación](#iniciar-la-aplicación)
-    -   [Interfaz Principal](#interfaz-principal)
-    -   [Proceso de Extracción (Paso a Paso)](#proceso-de-extracción-paso-a-paso)
-4.  [**Configuración Avanzada**](#4-configuración-avanzada)
-    -   [Archivo `settings.ini`](#archivo-settingsini)
-5.  [**Solución de Problemas Comunes**](#5-solución-de-problemas-comunes)
+    -   [Instalación desde el Código Fuente](#instalación-desde-el-ódigo-fuente)
+    -   [Ejecutar la Aplicación en Modo Desarrollo](#ejecutar-la-aplicación-en-modo-desarrollo)
+3.  [**Detalles de Configuración Avanzada**](#3-detalles-de-configuración-avanzada)
+4.  [**Solución de Problemas Comunes**](#4-solución-de-problemas-comunes)
 
 ---
 
-## 1. Introducción
+## 1. Guía para Usuarios Finales
 
-El **Extractor de Movimientos Bancarios con IA** es una herramienta de escritorio diseñada para simplificar la contabilidad y el análisis financiero. La aplicación utiliza la inteligencia artificial de Google (a través de la API de Gemini) para leer archivos PDF de extractos bancarios, entender su contenido y exportar todas las transacciones a un archivo CSV estandarizado y fácil de manejar.
+Esta sección es para ti si solo quieres usar la aplicación sin lidiar con el código.
 
-**Características Principales:**
-- Extracción de datos de transacciones desde archivos PDF.
-- Uso de IA para interpretar formatos de extractos diversos.
-- Generación de un archivo `output.csv` con los datos limpios.
-- Interfaz gráfica simple e intuitiva.
+### Descarga e Instalación
 
-## 2. Instalación y Configuración Inicial
+1.  Ve a la [**página de Releases en GitHub**](https://github.com/iapunto/bank-csv/releases).
+2.  Busca la última versión (ej. `v1.2.23`).
+3.  En la sección de **Assets**, descarga el archivo `BankCSVExtractor.exe`.
+4.  Guarda el archivo `.exe` en una carpeta de tu elección. ¡Eso es todo! No necesita instalación.
 
-Sigue estos pasos para tener la aplicación funcionando en tu sistema.
+### Configuración Inicial (API Key)
+
+La primera vez que ejecutes la aplicación, necesitarás configurar tu clave de API de Google Gemini.
+
+1.  Haz doble clic en `BankCSVExtractor.exe` para iniciar la aplicación.
+2.  Ve a la pestaña **"Configuración"**.
+3.  Pega tu clave de API de Gemini en el campo de texto.
+4.  Haz clic en el botón **"Guardar Clave"**.
+
+La aplicación guardará tu clave en un archivo `settings.ini` junto al `.exe` y estará lista para usarse.
+
+### Manual de Uso
+
+1.  Ve a la pestaña **"Extractor"**.
+2.  Haz clic en **"Seleccionar Archivo PDF"** y elige el extracto bancario que deseas procesar.
+3.  Haz clic en **"Generar CSV"**.
+4.  La aplicación te pedirá que elijas dónde guardar el archivo CSV resultante.
+5.  ¡Listo! El archivo CSV con tus transacciones será guardado en la ubicación que elegiste.
+
+---
+
+## 2. Guía para Desarrolladores
+
+Esta sección es para ti si quieres modificar el código, compilar tu propia versión o contribuir al proyecto.
 
 ### Requisitos Previos
-- **Python 3.8** o una versión superior.
-- Una **Clave de API de Google Gemini**. Puedes obtenerla gratuitamente [aquí](https://makersuite.google.com/app/apikey).
 
-### Pasos de Instalación
+-   **Python 3.8** o superior.
+-   **Git** instalado.
+-   Una **Clave de API de Google Gemini**.
+
+### Instalación desde el Código Fuente
 
 1.  **Clona el Repositorio:**
-    Abre una terminal o consola y ejecuta el siguiente comando:
     ```bash
     git clone https://github.com/iapunto/bank-csv.git
     cd bank-csv
     ```
 
-2.  **Crea un Entorno Virtual (Recomendado):**
-    Esto aísla las dependencias del proyecto.
+2.  **Crea y Activa un Entorno Virtual:**
     ```bash
     # Para Windows
     python -m venv venv
     venv\Scripts\activate
-
-    # Para macOS/Linux
-    python -m venv venv
-    source venv/bin/activate
     ```
 
 3.  **Instala las Dependencias:**
-    Con el entorno virtual activado, instala todo lo necesario con un solo comando:
     ```bash
     pip install -r requirements.txt
     ```
 
-### Configuración de la API Key
+### Ejecutar la Aplicación en Modo Desarrollo
 
-Este es el paso más importante para que la IA funcione.
-
-1.  Navega a la carpeta `config/`.
-2.  Abre el archivo `settings.ini` con un editor de texto.
-3.  Busca la línea `GEMINI_API_KEY` y pega tu clave de API después del signo `=`.
-
-    ```ini
-    [API]
-    GEMINI_API_KEY = tu_api_key_aqui
+-   Para iniciar la aplicación, ejecuta:
+    ```bash
+    python main.py
     ```
-4.  Guarda y cierra el archivo.
+-   La configuración de la API Key se gestiona de la misma forma que para el usuario final, a través de la pestaña "Configuración".
 
-¡Listo! La aplicación ya está configurada para funcionar.
+---
 
-## 3. Manual de Uso de la Aplicación
+## 3. Detalles de Configuración Avanzada
 
-### Iniciar la Aplicación
-
-Asegúrate de tener el entorno virtual activado y estar en la carpeta raíz del proyecto. Luego, ejecuta:
-```bash
-python main.py
-```
-Se abrirá la ventana principal de la aplicación.
-
-### Interfaz Principal
-
-La interfaz es minimalista y fácil de usar. Contiene los siguientes elementos:
-- **Un título:** "Extractor de Movimientos Bancarios".
-- **Un botón "Seleccionar PDF":** Para abrir el explorador de archivos y elegir el extracto bancario que deseas procesar.
-- **Un botón "Iniciar Extracción":** Para comenzar el proceso una vez seleccionado el archivo.
-- **Una etiqueta de estado:** Muestra el progreso actual (ej. "Listo", "Procesando...", "Extracción completada").
-
-### Proceso de Extracción (Paso a Paso)
-
-1.  **Haz clic en "Seleccionar PDF"**.
-2.  **Elige el archivo PDF** de tu extracto bancario y haz clic en "Abrir". La etiqueta de estado mostrará "Archivo seleccionado".
-3.  **Haz clic en "Iniciar Extracción"**.
-4.  **Espera**. La aplicación enviará el contenido del PDF a la IA de Gemini para su análisis. La etiqueta de estado mostrará "Procesando...". Este proceso puede tardar unos segundos.
-5.  **¡Finalizado!** Cuando la extracción termine, la etiqueta de estado cambiará a "Extracción completada". En la carpeta raíz del proyecto, encontrarás un nuevo archivo llamado `output.csv` con todas las transacciones.
-
-El archivo `output.csv` contendrá columnas como `fecha`, `descripcion`, `monto`, y `tipo_transaccion`.
-
-## 4. Configuración Avanzada
-
-Puedes personalizar el comportamiento de la aplicación editando el archivo `config/settings.ini`.
-
-### Archivo `settings.ini`
+La aplicación se controla a través del archivo `settings.ini`. Cuando usas el `.exe`, este archivo se crea junto a él. En modo desarrollo, se crea en la raíz del proyecto.
 
 -   `[API]`
     -   `GEMINI_API_KEY`: Tu clave de API.
-    -   `GEMINI_MODEL`: El modelo de IA a usar. `gemini-1.5-flash-latest` es rápido y eficiente, mientras que `gemini-1.5-pro-latest` es más potente pero lento.
-
 -   `[APP]`
     -   `APPEARANCE_MODE`: Tema visual (`Light`, `Dark`, `System`).
-    -   `COLOR_THEME`: Color de acento de la interfaz (`blue`, `green`, `dark-blue`).
-
--   `[LOGGING]`
-    -   `LOG_LEVEL`: Nivel de detalle de los registros (`INFO`, `DEBUG`).
-    -   `LOG_FILE`: Nombre del archivo donde se guardan los registros (`app.log`).
-
+    -   `COLOR_THEME`: Color de acento (`blue`, `green`, `dark-blue`).
 -   `[CSV]`
-    -   `CSV_ENCODING`: Codificación del archivo de salida (`utf-8`).
-    -   `CSV_DELIMITER`: Separador de columnas (`,` por defecto).
     -   `DATE_FORMAT`: Formato para las fechas en el CSV (`dd-mm-aaaa`).
 
-## 5. Solución de Problemas Comunes
+---
 
--   **Error: "API Key no configurada"**
-    1.  Verifica que `config/settings.ini` existe.
-    2.  Asegúrate de que `GEMINI_API_KEY` tiene una clave válida.
-    3.  Reinicia la aplicación.
+## 4. Solución de Problemas Comunes
 
--   **Error: "Módulo no encontrado"**
-    1.  Asegúrate de estar en la carpeta raíz del proyecto.
-    2.  Verifica que tu entorno virtual esté activado.
-    3.  Prueba a reinstalar las dependencias: `pip install -r requirements.txt`.
+-   **Error: "API Key no configurada" o similar al iniciar:**
+    -   Asegúrate de haber guardado una clave API válida en la pestaña "Configuración".
 
 -   **Error: "Archivo PDF no válido"**
-    1.  Asegúrate de que el archivo es un PDF válido y no está corrupto.
-    2.  El sistema funciona mejor con PDFs que contienen texto seleccionable, no imágenes escaneadas.
+    -   Asegúrate de que el archivo es un PDF válido y no está corrupto.
+    -   El sistema funciona mejor con PDFs que contienen texto seleccionable, no imágenes escaneadas.

@@ -5,6 +5,14 @@ Todos los cambios notables en este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto adhiere al [Versionado Semántico](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.24] - 2025-09-03
+
+### Agregado
+- Pie de página (footer) en la interfaz gráfica con:
+  - Número de versión dinámico.
+  - Enlace a la web del desarrollador (IA Punto).
+  - Enlace al correo de soporte.
+
 ## [1.2.23] - 2025-09-03
 
 ### Corregido

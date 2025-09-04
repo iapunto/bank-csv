@@ -18,6 +18,8 @@ acciones del usuario al controlador.
 import customtkinter as ctk
 import os
 import logging
+import webbrowser
+import toml
 
 # Configurar logging
 logger = logging.getLogger(__name__)
@@ -41,7 +43,7 @@ class MainWindow(ctk.CTk):
 
         # --- Configuración de la Ventana Principal ---
         self.title("Extractor de Movimientos Bancarios")
-        self.geometry("500x300")  # Aumentamos un poco la altura
+        self.geometry("500x320")  # Aumentamos un poco la altura
         self.resizable(False, False)
 
         # Configurar el tema
@@ -49,7 +51,7 @@ class MainWindow(ctk.CTk):
         ctk.set_default_color_theme("blue")
 
         # --- Creación del sistema de pestañas ---
-        self.tab_view = ctk.CTkTabview(self)
+        self.tab_view = ctk.CTkTabview(self, fg_color=self.cget("bg_color"))
         self.tab_view.pack(pady=10, padx=10, fill="both", expand=True)
 
         self.tab_view.add("Extractor")
@@ -63,18 +65,19 @@ class MainWindow(ctk.CTk):
 
         # --- Barra de estado en la parte inferior ---
         self.status_bar = ctk.CTkLabel(self, text="Listo", anchor="w")
-        self.status_bar.pack(side="bottom", fill="x", padx=10, pady=5)
+        self.status_bar.pack(side="bottom", fill="x", padx=10, pady=(0,0))
         self.default_status_color = self.status_bar.cget("text_color")
+
+        # --- Pie de página (Footer) ---
+        self._crear_footer()
 
         logger.info("Ventana principal inicializada correctamente")
 
     def _crear_widgets_extractor(self, tab):
         """Crea los widgets para la pestaña de extracción."""
-        # Frame principal para organizar los widgets
         extractor_frame = ctk.CTkFrame(tab)
         extractor_frame.pack(pady=20, padx=20, fill="both", expand=True)
 
-        # 1. Botón para seleccionar el archivo PDF
         self.select_pdf_button = ctk.CTkButton(
             extractor_frame,
             text="Seleccionar Archivo PDF",
@@ -82,7 +85,6 @@ class MainWindow(ctk.CTk):
         )
         self.select_pdf_button.pack(pady=10, padx=10)
 
-        # 2. Etiqueta para mostrar el nombre del archivo seleccionado
         self.file_path_label = ctk.CTkLabel(
             extractor_frame,
             text="Ningún archivo seleccionado",
@@ -90,7 +92,6 @@ class MainWindow(ctk.CTk):
         )
         self.file_path_label.pack(pady=5, padx=10)
 
-        # 3. Botón para iniciar el proceso de generación del CSV
         self.generate_csv_button = ctk.CTkButton(
             extractor_frame,
             text="Generar CSV",
@@ -104,11 +105,9 @@ class MainWindow(ctk.CTk):
         config_frame = ctk.CTkFrame(tab)
         config_frame.pack(pady=20, padx=20, fill="both", expand=True)
 
-        # 1. Etiqueta para el campo de la API Key
         api_key_label = ctk.CTkLabel(config_frame, text="Clave API de Google Gemini:")
         api_key_label.pack(pady=(0, 5), padx=10, anchor="w")
 
-        # 2. Campo de texto para la API Key
         self.api_key_entry = ctk.CTkEntry(config_frame, width=400, show="*")
         self.api_key_entry.pack(pady=5, padx=10, fill="x")
         if self.controller:
@@ -116,7 +115,6 @@ class MainWindow(ctk.CTk):
             if current_key not in ["No encontrada", "Error de lectura"]:
                 self.api_key_entry.insert(0, current_key)
 
-        # 3. Botón para guardar la API Key
         self.save_api_key_button = ctk.CTkButton(
             config_frame,
             text="Guardar Clave",
@@ -124,24 +122,54 @@ class MainWindow(ctk.CTk):
         )
         self.save_api_key_button.pack(pady=20, padx=10)
 
+    def _crear_footer(self):
+        """Crea el pie de página con la información de versión y desarrollador."""
+        footer_frame = ctk.CTkFrame(self, fg_color="transparent")
+        footer_frame.pack(side="bottom", fill="x", padx=10, pady=(0, 5))
+
+        # --- Obtener versión --- 
+        try:
+            with open("pyproject.toml", "r") as f:
+                pyproject = toml.load(f)
+                version = pyproject["project"]["version"]
+        except Exception:
+            version = "desconocida"
+
+        version_label = ctk.CTkLabel(footer_frame, text=f"v{version}", font=("Segoe UI", 10))
+        version_label.pack(side="left")
+
+        # --- Info Desarrollador ---
+        dev_frame = ctk.CTkFrame(footer_frame, fg_color="transparent")
+        dev_frame.pack(side="right")
+
+        dev_label = ctk.CTkLabel(dev_frame, text="Desarrollado por ", font=("Segoe UI", 10))
+        dev_label.pack(side="left")
+
+        link_label = ctk.CTkLabel(dev_frame, text="IA Punto", font=("Segoe UI", 10, "underline"), text_color="#60a5fa", cursor="hand2")
+        link_label.pack(side="left")
+        link_label.bind("<Button-1>", lambda e: webbrowser.open_new("https://iapunto.com"))
+
+        separator_label = ctk.CTkLabel(dev_frame, text=" | ", font=("Segoe UI", 10))
+        separator_label.pack(side="left")
+
+        email_label = ctk.CTkLabel(dev_frame, text="Soporte", font=("Segoe UI", 10, "underline"), text_color="#60a5fa", cursor="hand2")
+        email_label.pack(side="left")
+        email_label.bind("<Button-1>", lambda e: webbrowser.open_new("mailto:desarrollo@iapunto.com"))
+
     def _on_save_api_key_click(self):
-        """Maneja el clic en el botón de guardar API Key."""
         if self.controller:
             new_key = self.api_key_entry.get()
             self.controller.save_api_key(new_key)
 
     def _on_select_pdf_click(self):
-        """Maneja el clic en el botón de seleccionar PDF."""
         if self.controller:
             self.controller.seleccionar_archivo_pdf()
 
     def _on_generate_csv_click(self):
-        """Maneja el clic en el botón de generar CSV."""
         if self.controller:
             self.controller.generar_csv()
 
     def actualizar_ruta_archivo(self, ruta: str):
-        """Actualiza la etiqueta de la ruta del archivo."""
         if ruta:
             nombre_archivo = os.path.basename(ruta)
             self.file_path_label.configure(text=f"Archivo: {nombre_archivo}")
@@ -151,10 +179,8 @@ class MainWindow(ctk.CTk):
             self.generate_csv_button.configure(state="disabled")
 
     def actualizar_barra_estado(self, mensaje: str, es_error: bool = False):
-        """Actualiza el texto y color de la barra de estado."""
         self.status_bar.configure(text=mensaje)
         self.status_bar.configure(text_color="red" if es_error else self.default_status_color)
 
     def run(self):
-        """Inicia el bucle principal de la aplicación."""
         self.mainloop()
