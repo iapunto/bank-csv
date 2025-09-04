@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "bank-csv-extractor"
-version = "1.2.25"
+version = "1.2.26"
 description = "Extractor de Movimientos Bancarios con IA"
 authors = [
     {name = "IA Punto Soluciones Tecnológicas", email = "desarrollo@iapunto.com"}

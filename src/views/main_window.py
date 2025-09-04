@@ -129,7 +129,7 @@ class MainWindow(ctk.CTk):
         footer_frame.pack(side="bottom", fill="x", padx=10, pady=(0, 5))
 
         # --- Obtener versión ---
-        version = "1.2.25" # Versión manual
+        version = "1.2.26" # Versión manual
 
         version_label = ctk.CTkLabel(footer_frame, text=f"v{version}", font=("Segoe UI", 10))
         version_label.pack(side="left")

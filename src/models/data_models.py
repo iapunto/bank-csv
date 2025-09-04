@@ -23,14 +23,56 @@ from typing import List, Optional, Annotated
 def clean_number_string(value: str) -> str:
     """
     Limpia una cadena de texto numérica para que pueda ser convertida a float.
-    Elimina los separadores de miles (puntos) y estandariza el separador
-    decimal a un punto.
-    Ej: "1.234,56" -> "1234.56"
+    Maneja de forma robusta los separadores de miles ('.' o ',') y decimales ('.' o ',').
+    Ejemplos:
+    - "1.234,56" -> "1234.56"
+    - "1,234.56" -> "1234.56"
+    - "741.00"   -> "741.00"
+    - "1.234"    -> "1234"
     """
-    if isinstance(value, str):
-        # Eliminar los puntos que actúan como separadores de miles.
-        # Reemplazar la coma decimal por un punto.
-        return value.replace(".", "").replace(",", ".")
+    if not isinstance(value, str):
+        return value
+    
+    value = value.strip()
+    
+    has_dot = '.' in value
+    has_comma = ',' in value
+
+    if has_dot and has_comma:
+        if value.rfind('.') > value.rfind(','):
+            # Format: 1,234.56
+            return value.replace(',', '')
+        else:
+            # Format: 1.234,56
+            return value.replace('.', '').replace(',', '.')
+    
+    if has_comma:
+        # If there are multiple commas, they are thousands separators
+        if value.count(',') > 1:
+            return value.replace(',', '')
+        # If there is one comma, it's a decimal separator
+        else:
+            # Ambiguous case: "1,234" vs "1,23".
+            # If the part after the comma has 3 digits, it's likely a thousand separator.
+            if len(value.split(',')[1]) == 3:
+                return value.replace(',', '')
+            else:
+                return value.replace(',', '.')
+        
+    if has_dot:
+        # If there are multiple dots, they are thousands separators
+        if value.count('.') > 1:
+            return value.replace('.', '')
+        # If there is one dot, it could be decimal or thousands
+        else:
+            parts = value.split('.')
+            # If the part after the dot is not 3 digits long, it's probably a decimal.
+            # Or if it is 3 digits but there are no thousands (e.g. ".500").
+            if len(parts[1]) != 3 or len(parts[0]) == 0:
+                return value # Treat as decimal
+            else: # e.g. "1.234"
+                return value.replace('.', '') # Treat as thousands
+    
     return value
 
 
