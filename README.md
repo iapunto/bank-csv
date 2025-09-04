@@ -5,7 +5,7 @@
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![Imports: isort](https://img.shields.io/badge/%20imports-isort-%231674b1?style=flat&labelColor=ef8336)](https://pycqa.github.io/isort/)
 
-Un sistema inteligente para extraer y procesar transacciones bancarias de archivos PDF utilizando la API de Google Gemini.
+Un sistema inteligente diseñado para **convertir extractos bancarios en formato PDF a archivos CSV**, facilitando la **conciliación de movimientos en Odoo** y otros sistemas ERP o contables. Utiliza la API de Google Gemini para una extracción precisa y automatizada de transacciones.
 
 ## 🚀 Características
 
