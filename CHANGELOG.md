@@ -5,6 +5,11 @@ Todos los cambios notables en este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto adhiere al [Versionado Semántico](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.23] - 2025-09-03
+
+### Corregido
+- **Error Crítico de Compilación:** Solucionado un problema fundamental con PyInstaller que impedía que el ejecutable encontrara sus propios módulos (`ModuleNotFoundError`). Se corrigieron las importaciones absolutas por relativas dentro del paquete `src` y se ajustó el proceso de compilación para ser más robusto.
+
 ## [1.1.0] - 2025-09-03
 
 ### Agregado

@@ -15,15 +15,17 @@ Maneja la lógica de la aplicación y responde a las interacciones del usuario.
 """
 
 import os
+import sys
 import logging
 import configparser
+import shutil
 from tkinter import filedialog
 
-# Importamos las clases y funciones necesarias de nuestros otros módulos
-from src.models.extractor_ia import ExtractorIA
-from src.models.csv_writer import escribir_transacciones_a_csv
-from src.views.main_window import MainWindow
-from src.utils.helpers import resource_path
+# Importaciones relativas para que PyInstaller funcione correctamente
+from ..models.extractor_ia import ExtractorIA
+from ..models.csv_writer import escribir_transacciones_a_csv
+from ..views.main_window import MainWindow
+from ..utils.helpers import resource_path
 
 # Configurar logging
 logger = logging.getLogger(__name__)
@@ -37,14 +39,12 @@ class AppController:
     def __init__(self, view: MainWindow):
         """
         Inicializa el controlador.
-
-        Args:
-            view: La instancia de la ventana principal (la Vista).
         """
         self.view = view
         self.selected_pdf_path = None
-        self.config_path = resource_path("config/settings.ini")
         self.config = configparser.ConfigParser()
+
+        self._initialize_config()
 
         try:
             # Inicializamos el Modelo (el extractor de IA) con la ruta correcta
@@ -55,6 +55,32 @@ class AppController:
             logger.error(f"Error al inicializar el extractor: {e}")
             self.view.actualizar_barra_estado(str(e), es_error=True)
             self.extractor = None
+
+    def _initialize_config(self):
+        """
+        Determina la ruta del archivo de configuración y lo crea a partir de
+        la plantilla si no existe.
+        """
+        if getattr(sys, 'frozen', False):
+            # Estamos en un ejecutable de PyInstaller
+            base_dir = os.path.dirname(sys.executable)
+        else:
+            # Estamos en un entorno de desarrollo normal
+            base_dir = os.path.abspath(".")
+
+        self.config_path = os.path.join(base_dir, "settings.ini")
+        logger.info(f"Ruta del archivo de configuración establecida en: {self.config_path}")
+
+        if not os.path.exists(self.config_path):
+            logger.warning("El archivo settings.ini no existe. Creándolo desde la plantilla.")
+            try:
+                template_path = resource_path("config/settings.ini.template")
+                shutil.copyfile(template_path, self.config_path)
+                logger.info("settings.ini creado exitosamente.")
+            except Exception as e:
+                logger.error(f"No se pudo crear settings.ini desde la plantilla: {e}")
+                self.view.actualizar_barra_estado(f"Error crítico: no se pudo crear config: {e}", es_error=True)
+
 
     def get_api_key(self) -> str:
         """Lee la clave de API desde el archivo de configuración."""
@@ -91,7 +117,6 @@ class AppController:
         Abre un diálogo para que el usuario seleccione un archivo PDF.
         Actualiza la vista con la ruta del archivo seleccionado.
         """
-        # Abrir el explorador de archivos para seleccionar un PDF
         filepath = filedialog.askopenfilename(
             title="Seleccionar extracto bancario",
             filetypes=(("Archivos PDF", "*.pdf"),
@@ -105,7 +130,6 @@ class AppController:
                 "Archivo cargado. Listo para generar CSV.")
             logger.info(f"Archivo PDF seleccionado: {filepath}")
         else:
-            # Si el usuario cancela la selección
             self.selected_pdf_path = None
             self.view.actualizar_ruta_archivo(None)
             logger.info("Selección de archivo cancelada por el usuario")
@@ -124,25 +148,19 @@ class AppController:
                 "Error: El extractor de IA no está configurado. Revisa la API Key.", es_error=True)
             return
 
-        # 1. Actualizar la vista para informar al usuario
         self.view.actualizar_barra_estado(
             "Procesando... Contactando a la IA. Esto puede tardar un momento.")
-        self.view.update_idletasks()  # Forzar actualización de la GUI
+        self.view.update_idletasks()
 
-        # 2. Llamar al Modelo para extraer los datos
-        logger.info("Iniciando extracción de transacciones del PDF")
         transacciones = self.extractor.extraer_transacciones_de_pdf(
             self.selected_pdf_path)
 
-        # 3. Verificar el resultado de la extracción
         if not transacciones:
             self.view.actualizar_barra_estado(
                 "Error: No se pudieron extraer transacciones del PDF.", es_error=True)
             logger.error("No se pudieron extraer transacciones del PDF")
             return
 
-        # 4. Pedir al usuario dónde guardar el archivo CSV
-        # Sugerir un nombre de archivo de salida basado en el de entrada
         input_filename = os.path.basename(self.selected_pdf_path)
         output_suggestion = os.path.splitext(
             input_filename)[0] + "_movimientos.csv"
@@ -160,11 +178,8 @@ class AppController:
             logger.info("Guardado de archivo CSV cancelado por el usuario")
             return
 
-        # 5. Llamar al Modelo para escribir el archivo CSV
-        logger.info(f"Escribiendo archivo CSV en: {output_path}")
         exito = escribir_transacciones_a_csv(transacciones, output_path)
 
-        # 6. Informar al usuario del resultado final
         if exito:
             self.view.actualizar_barra_estado(
                 f"¡Éxito! Archivo CSV guardado en: {os.path.basename(output_path)}")

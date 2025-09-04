@@ -15,10 +15,26 @@ conectarlos y iniciar el bucle principal de la interfaz gráfica.
 """
 
 import sys
+import os
+
+# --- INICIO: Parche para PyInstaller ---
+# Determinar la ruta base, ya sea en desarrollo o empaquetado
+if getattr(sys, 'frozen', False):
+    # Si está empaquetado, la base es el directorio del .exe
+    base_path = os.path.dirname(sys.executable)
+else:
+    # Si está en desarrollo, la base es el directorio del script main.py
+    base_path = os.path.dirname(os.path.abspath(__file__))
+
+# Añadir la ruta base al sys.path para que encuentre el paquete 'src'
+sys.path.insert(0, base_path)
+# --- FIN: Parche para PyInstaller ---
+
 import logging
 import traceback
-from src.views.main_window import MainWindow
-from src.controllers.app_controller import AppController
+
+# Cambiamos las importaciones para que sean más robustas con PyInstaller
+from src import MainWindow, AppController
 
 # Configurar logging básico
 logging.basicConfig(
@@ -41,17 +57,14 @@ def main():
         logger.info("Iniciando aplicación Extractor de Movimientos Bancarios")
 
         # 1. Crear una instancia de la Vista (la ventana principal).
-        # Le pasamos 'None' inicialmente porque el controlador aún no existe.
         logger.info("Creando ventana principal...")
         view = MainWindow(controller=None)
 
         # 2. Crear una instancia del Controlador y pasarle la Vista.
-        # Ahora el controlador puede comunicarse con la vista.
         logger.info("Creando controlador principal...")
         controller = AppController(view)
 
         # 3. Asignar el controlador a la Vista.
-        # Ahora la vista puede enviar acciones al controlador (ej. clics de botón).
         logger.info("Conectando vista y controlador...")
         view.controller = controller
 
@@ -89,3 +102,6 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+# --- FIN DEL ARCHIVO ---
