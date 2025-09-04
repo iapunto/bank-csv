@@ -20,6 +20,7 @@ import os
 import logging
 import webbrowser
 import toml
+import importlib.metadata # Importamos importlib.metadata
 
 # Configurar logging
 logger = logging.getLogger(__name__)
@@ -51,7 +52,7 @@ class MainWindow(ctk.CTk):
         ctk.set_default_color_theme("blue")
 
         # --- Creación del sistema de pestañas ---
-        self.tab_view = ctk.CTkTabview(self, fg_color=self.cget("bg_color"))
+        self.tab_view = ctk.CTkTabview(self)
         self.tab_view.pack(pady=10, padx=10, fill="both", expand=True)
 
         self.tab_view.add("Extractor")
@@ -63,13 +64,13 @@ class MainWindow(ctk.CTk):
         # --- Pestaña de Configuración ---
         self._crear_widgets_configuracion(self.tab_view.tab("Configuración"))
 
+        # --- Pie de página (Footer) ---
+        self._crear_footer()
+
         # --- Barra de estado en la parte inferior ---
         self.status_bar = ctk.CTkLabel(self, text="Listo", anchor="w")
         self.status_bar.pack(side="bottom", fill="x", padx=10, pady=(0,0))
         self.default_status_color = self.status_bar.cget("text_color")
-
-        # --- Pie de página (Footer) ---
-        self._crear_footer()
 
         logger.info("Ventana principal inicializada correctamente")
 
@@ -127,13 +128,8 @@ class MainWindow(ctk.CTk):
         footer_frame = ctk.CTkFrame(self, fg_color="transparent")
         footer_frame.pack(side="bottom", fill="x", padx=10, pady=(0, 5))
 
-        # --- Obtener versión --- 
-        try:
-            with open("pyproject.toml", "r") as f:
-                pyproject = toml.load(f)
-                version = pyproject["project"]["version"]
-        except Exception:
-            version = "desconocida"
+        # --- Obtener versión ---
+        version = "1.2.25" # Versión manual
 
         version_label = ctk.CTkLabel(footer_frame, text=f"v{version}", font=("Segoe UI", 10))
         version_label.pack(side="left")

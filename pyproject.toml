@@ -7,7 +7,7 @@ name = "bank-csv-extractor"
 version = "1.2.25"
 description = "Extractor de Movimientos Bancarios con IA"
 authors = [
-    {name = "IA Punto Soluciones Tecnológicas", email = "sergio.rondon@puntosoluciones.com"}
+    {name = "IA Punto Soluciones Tecnológicas", email = "desarrollo@iapunto.com"}
 ]
 readme = "README.md"
 requires-python = ">=3.8"

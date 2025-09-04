@@ -27,7 +27,6 @@ from PyPDF2 import PdfReader, PdfWriter
 from src.models.data_models import ExtractoBancario, Transaccion
 
 # Configurar logging
-logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 
@@ -61,7 +60,7 @@ class ExtractorIA:
         except (KeyError, FileNotFoundError) as e:
             logger.error(f"Error de configuración: {e}")
             raise ConnectionError(
-                f"Error: No se pudo encontrar o leer el archivo de configuración en \'{config_path}\'. "
+                f"Error: No se pudo encontrar o leer el archivo de configuración en '{config_path}'. "
                 f"Asegúrate de que existe y tiene el formato correcto."
             )
         except Exception as e:
@@ -92,7 +91,8 @@ class ExtractorIA:
         return output_paths
 
     def extraer_transacciones_de_pdf(
-        self, pdf_path: str
+        self,
+        pdf_path: str,
     ) -> Optional[List[Transaccion]]:
         """
         Procesa un archivo PDF, extrayendo transacciones página por página
@@ -156,14 +156,14 @@ class ExtractorIA:
                         "response_mime_type": "application/json",
                     },
                 )
-                logger.info(f"Respuesta recibida de Gemini para página {i + 1}.")
+                logger.info(f"Respuesta de Gemini para página {i + 1} recibida y procesada.")
 
                 # Parsear la respuesta JSON manualmente con Pydantic.
                 try:
                     extracto_bancario_obj = ExtractoBancario.model_validate_json(response.text)
                 except Exception as parse_error:
                     logger.error(f"Página {i + 1}: Error al parsear la respuesta JSON: {parse_error}", exc_info=True)
-                    logger.warning(f"Página {i + 1}: Respuesta de texto de la IA que causó el error: {response.text}")
+                    logger.debug(f"Página {i + 1}: Respuesta de texto de la IA que causó el error: {response.text}") # Cambiado a DEBUG
                     continue # Skip to the next page if parsing fails
                 
                 if extracto_bancario_obj and extracto_bancario_obj.transacciones:
@@ -172,7 +172,7 @@ class ExtractorIA:
                 else:
                     logger.warning(f"Página {i + 1}: La IA no devolvió transacciones o la lista estaba vacía.")
                     try:
-                        logger.warning(f"Página {i + 1}: Respuesta de texto de la IA: {response.text}")
+                        logger.debug(f"Página {i + 1}: Respuesta de texto de la IA: {response.text}") # Cambiado a DEBUG
                     except Exception:
                         pass # Ignore if text is not available
 
