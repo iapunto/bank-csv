@@ -5,6 +5,20 @@ Todos los cambios notables en este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto adhiere al [Versionado Semántico](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.0] - 2025-09-08
+
+### Agregado
+- Generación de archivos Excel (.xlsx) con formato y estilos.
+- Nueva interfaz gráfica con dos columnas, mostrando el logo de la aplicación a la izquierda.
+
+### Cambiado
+- Reorganización de los archivos de imagen en la carpeta `assets/images`.
+- Carga explícita del icono de la aplicación para mayor robustez.
+
+### Corregido
+- Corregidos los tests unitarios que fallaban debido a cambios en el modelo de datos.
+- Solucionado un warning en la carga de imágenes en la GUI usando `CTkImage`.
+
 ## [1.2.25] - 2025-09-03
 
 ### Corregido

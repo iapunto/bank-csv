@@ -24,6 +24,7 @@ from tkinter import filedialog
 # Importaciones relativas para que PyInstaller funcione correctamente
 from ..models.extractor_ia import ExtractorIA
 from ..models.csv_writer import escribir_transacciones_a_csv
+from ..models.excel_writer import escribir_transacciones_a_excel
 from ..views.main_window import MainWindow
 from ..utils.helpers import resource_path
 
@@ -188,3 +189,58 @@ class AppController:
             self.view.actualizar_barra_estado(
                 "Error: No se pudo escribir el archivo CSV.", es_error=True)
             logger.error(f"Error al escribir el archivo CSV en: {output_path}")
+
+    def generar_excel(self):
+        """
+        Orquesta el proceso completo de extracción y generación de Excel.
+        """
+        if not self.selected_pdf_path:
+            self.view.actualizar_barra_estado(
+                "Error: Por favor, selecciona un archivo PDF primero.", es_error=True)
+            return
+
+        if not self.extractor:
+            self.view.actualizar_barra_estado(
+                "Error: El extractor de IA no está configurado. Revisa la API Key.", es_error=True)
+            return
+
+        self.view.actualizar_barra_estado(
+            "Procesando... Contactando a la IA. Esto puede tardar un momento.")
+        self.view.update_idletasks()
+
+        transacciones = self.extractor.extraer_transacciones_de_pdf(
+            self.selected_pdf_path)
+
+        if not transacciones:
+            self.view.actualizar_barra_estado(
+                "Error: No se pudieron extraer transacciones del PDF.", es_error=True)
+            logger.error("No se pudieron extraer transacciones del PDF")
+            return
+
+        input_filename = os.path.basename(self.selected_pdf_path)
+        output_suggestion = os.path.splitext(
+            input_filename)[0] + "_movimientos.xlsx"
+
+        output_path = filedialog.asksaveasfilename(
+            title="Guardar archivo Excel",
+            initialfile=output_suggestion,
+            defaultextension=".xlsx",
+            filetypes=(("Archivos Excel", "*.xlsx"),)
+        )
+
+        if not output_path:
+            self.view.actualizar_barra_estado(
+                "Proceso cancelado por el usuario.")
+            logger.info("Guardado de archivo Excel cancelado por el usuario")
+            return
+
+        exito = escribir_transacciones_a_excel(transacciones, output_path)
+
+        if exito:
+            self.view.actualizar_barra_estado(
+                f"¡Éxito! Archivo Excel guardado en: {os.path.basename(output_path)}")
+            logger.info(f"Archivo Excel generado exitosamente en: {output_path}")
+        else:
+            self.view.actualizar_barra_estado(
+                "Error: No se pudo escribir el archivo Excel.", es_error=True)
+            logger.error(f"Error al escribir el archivo Excel en: {output_path}")

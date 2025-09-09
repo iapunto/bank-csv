@@ -16,3 +16,4 @@ mypy>=1.0.0
 # Dependencias opcionales para mejoras
 pillow>=9.0.0  # Para mejor soporte de imágenes en customtkinter
 requests>=2.28.0  # Para futuras funcionalidades de red
+openpyxl>=3.0.0  # Para escribir archivos Excel

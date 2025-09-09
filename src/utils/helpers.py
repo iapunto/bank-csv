@@ -37,3 +37,26 @@ def resource_path(relative_path: str) -> str:
         base_path = os.path.abspath(".")
 
     return os.path.join(base_path, relative_path)
+
+def get_icon_path() -> str:
+    """
+    Obtiene la ruta al archivo de icono, manejando el empaquetado de PyInstaller.
+    Busca un archivo .ico y, si no lo encuentra, un .png.
+
+    Returns:
+        La ruta absoluta al archivo de icono, o una cadena vacía si no se encuentra.
+    """
+    # Lista de posibles nombres de icono en orden de preferencia
+    possible_icons = ["images/icono.ico", "images/icono.png"]
+
+    for icon in possible_icons:
+        try:
+            # Usamos resource_path para obtener la ruta correcta
+            path = resource_path(os.path.join("assets", icon))
+            if os.path.exists(path):
+                return path
+        except Exception:
+            # Si hay algún error, simplemente probamos el siguiente
+            continue
+            
+    return ""  # Retorna una cadena vacía si no se encuentra ningún icono

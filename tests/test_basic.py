@@ -32,13 +32,13 @@ class TestDataModels(unittest.TestCase):
     def test_transaccion_creation(self):
         """Test de creación de una transacción."""
         transaccion = Transaccion(
-            dia="15-12-2025",
+            fecha="15-12-2025",
             descripcion="Compra en supermercado",
             debito=25.50,
             credito=None
         )
         
-        self.assertEqual(transaccion.dia, "15-12-2025")
+        self.assertEqual(transaccion.fecha, "15-12-2025")
         self.assertEqual(transaccion.descripcion, "Compra en supermercado")
         self.assertEqual(transaccion.debito, 25.50)
         self.assertIsNone(transaccion.credito)
@@ -46,8 +46,8 @@ class TestDataModels(unittest.TestCase):
     def test_extracto_bancario_creation(self):
         """Test de creación de un extracto bancario."""
         transacciones = [
-            Transaccion(dia="15-12-2025", descripcion="Compra", debito=25.50, credito=None),
-            Transaccion(dia="16-12-2025", descripcion="Depósito", debito=None, credito=100.00)
+            Transaccion(fecha="15-12-2025", descripcion="Compra", debito=25.50, credito=None),
+            Transaccion(fecha="16-12-2025", descripcion="Depósito", debito=None, credito=100.00)
         ]
         
         extracto = ExtractoBancario(transacciones=transacciones)
@@ -65,8 +65,8 @@ class TestCSVWriter(unittest.TestCase):
         self.test_file = os.path.join(self.test_dir, "test.csv")
         
         self.test_transacciones = [
-            Transaccion(dia="15-12-2025", descripcion="Compra", debito=25.50, credito=None),
-            Transaccion(dia="16-12-2025", descripcion="Depósito", debito=None, credito=100.00)
+            Transaccion(fecha="15-12-2025", descripcion="Compra", debito=25.50, credito=None),
+            Transaccion(fecha="16-12-2025", descripcion="Depósito", debito=None, credito=100.00)
         ]
     
     def tearDown(self):
@@ -84,8 +84,8 @@ class TestCSVWriter(unittest.TestCase):
         with open(self.test_file, 'r', encoding='utf-8') as f:
             content = f.read()
             
-        self.assertIn("dia,descripcion,debito,credito", content)
-        self.assertIn("15-12-2025,Compra,25.5,", content)
+        self.assertIn("Dia,Etiqueta,Debit,Credit", content)
+        self.assertIn("15-12-2025,Compra,25.50,", content)
         self.assertIn("16-12-2025,Depósito,,100.0", content)
     
     def test_csv_writing_empty_list(self):
